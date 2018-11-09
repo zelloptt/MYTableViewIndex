@@ -66,8 +66,18 @@ public class TableViewIndexController : NSObject {
         
         scrollView.my_didMoveToSuperviewHandler = { [weak self] superview in
             if let superview = superview, let tableIndex = self?.tableViewIndex {
-                superview.addSubview(tableIndex)
-                self?.layout()
+              // Workaround for the table index not appearing on iOS 10-
+              if #available(iOS 11, *) {
+              } else {
+                tableIndex.translatesAutoresizingMaskIntoConstraints = false
+              }
+              superview.addSubview(tableIndex)
+              if #available(iOS 11, *) {
+              } else {
+                superview.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "[index]|", options: [], metrics: nil, views: ["index":tableIndex]))
+                superview.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[index]|", options: [], metrics: nil, views: ["index":tableIndex]))
+              }
+              self?.layout()
             } else {
                 self?.tableViewIndex.removeFromSuperview()
             }
